@@ -1,0 +1,67 @@
+# Binaries
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+whatsapp-go
+whatsapp-go.exe
+
+# Test binary
+*.test
+
+# Output of the go coverage tool
+*.out
+coverage.html
+
+# Dependency directories
+vendor/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Database
+*.db
+*.db-wal
+*.db-shm
+whatsapp.db
+whatsapp.db-wal
+whatsapp.db-shm
+
+# Media cache
+media_cache/
+*.ogg
+*.opus
+*.jpg
+*.jpeg
+*.png
+*.gif
+*.mp4
+*.pdf
+
+# Logs
+*.log
+
+# Environment
+.env
+.env.local
+
+# Profiles
+cpu.prof
+mem.prof
+
+# Build artifacts
+dist/
+build/
+
+# Misc
+*.tmp
+*.temp
