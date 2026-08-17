@@ -1,0 +1,64 @@
+# docker-compose.yml - Local development and testing
+version: '3.8'
+
+services:
+  # Main application
+  whatsapp-go:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: whatsapp-go
+    restart: unless-stopped
+    environment:
+      - LOG_LEVEL=debug
+      - WHATSAPP_DB_PATH=/data/whatsapp.db
+    volumes:
+      - whatsapp-data:/data
+      - ./configs:/app/configs:ro
+    ports:
+      - "8080:8080"
+    healthcheck:
+      test: ["CMD", "./whatsapp-go", "version"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+
+  # Redis for session caching (optional)
+  redis:
+    image: redis:7-alpine
+    container_name: whatsapp-go-redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
+  # PostgreSQL for persistent storage (optional)
+  postgres:
+    image: postgres:16-alpine
+    container_name: whatsapp-go-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: whatsapp
+      POSTGRES_USER: whatsapp
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-whatsapp}
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U whatsapp -d whatsapp"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  whatsapp-data:
+  redis-data:
+  postgres-data:

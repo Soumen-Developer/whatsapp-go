@@ -1,0 +1,139 @@
+# .goreleaser.yml - Configuration for GoReleaser
+# Build and release WhatsApp-Go binaries
+
+# Build configuration
+builds:
+  - id: whatsapp-go
+    main: ./cmd/whatsapp-go
+    binary: whatsapp-go
+    # Platform targets
+    goos:
+      - linux
+      - darwin
+      - windows
+    goarch:
+      - amd64
+      - arm64
+    # Build flags
+    ldflags:
+      - -s -w
+      - -X main.version={{.Version}}
+      - -X main.commit={{.Commit}}
+      - -X main.date={{.Date}}
+      - -X main.builtBy=goreleaser
+    # Build hooks
+    hooks:
+      pre: go mod tidy
+      post: |
+        echo "Build completed for {{.Os}}/{{.Arch}}"
+    # Environment variables
+    env:
+      - CGO_ENABLED=0
+    # Ignore errors for unsupported combinations
+    ignore:
+      - goos: windows
+        goarch: arm64
+
+# Archive configuration
+archives:
+  - id: default
+    name_template: >-
+      {{ .ProjectName }}_
+      {{- .Version }}_
+      {{- title .Os }}_
+      {{- if eq .Arch "amd64" }}x86_64
+      {{- else if eq .Arch "386" }}i386
+      {{- else }}{{ .Arch }}{{ end }}
+      {{- if .Arm }}v{{ .Arm }}{{ end }}
+    format_overrides:
+      - goos: windows
+        format: zip
+    # Files to include in archive
+    files:
+      - README.md
+      - LICENSE
+      - CHANGELOG.md
+    # Additional wrapping
+    wrap_in_directory: true
+
+# Checksum configuration
+checksum:
+  name_template: 'checksums.txt'
+  algorithm: sha256
+
+# Changelog configuration
+changelog:
+  sort: asc
+  filters:
+    exclude:
+      - '^docs:'
+      - '^test:'
+      - '^chore:'
+      - Merge pull request
+      - Merge branch
+
+# Release configuration
+release:
+  github:
+    owner: Soumen-Developer
+    name: whatsapp-go
+  # Draft release initially
+  draft: false
+  # Not a prerelease unless tag has -rc, -alpha, -beta
+  prerelease: auto
+
+# Homebrew tap (if you have a homebrew tap repo)
+# brews:
+#   - repository:
+#       owner: Soumen-Developer
+#       name: homebrew-tap
+#     commit_author:
+#       name: goreleaserbot
+#       email: goreleaser@carlosbecker.com
+
+# Scoop manifest
+# scoop:
+#   bucket:
+#     owner: Soumen-Developer
+#     name: scoop-bucket
+
+# Docker configuration
+dockers:
+  - id: default
+    goos: linux
+    goarch: amd64
+    image_templates:
+      - "ghcr.io/soumen-developer/whatsapp-go:{{ .Version }}"
+      - "ghcr.io/soumen-developer/whatsapp-go:latest"
+    dockerfile: Dockerfile
+    build_flag_templates:
+      - "--platform=linux/amd64,linux/arm64"
+    extra_files:
+      - LICENSE
+      - README.md
+
+# Nixpacks (optional)
+# nixpacks:
+#   - name_template: "{{ .ProjectName }}"
+
+# Source archive
+source:
+  enabled: true
+  name_template: "{{ .ProjectName }}-{{ .Version }}-source"
+  format: tar.gz
+
+# Announcements (optional - uncomment to enable)
+# announce:
+#   github:
+#     enabled: true
+#   mastodon:
+#     enabled: false
+#   twitter:
+#     enabled: false
+#   discord:
+#     enabled: false
+
+# Before hooks
+before:
+  hooks:
+    - go mod tidy
