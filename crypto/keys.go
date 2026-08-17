@@ -247,6 +247,32 @@ func ChaChaPolyDecrypt(key, nonce, ciphertext, additionalData []byte) ([]byte, e
 	return plaintext, nil
 }
 
+// GenerateCurve25519PrivateKey generates a new Curve25519 private key.
+func GenerateCurve25519PrivateKey() *[32]byte {
+	privateKey := make([]byte, Curve25519KeySize)
+	if _, err := rand.Read(privateKey); err != nil {
+		panic(err) // Should not happen with crypto/rand
+	}
+	// Clamp private key for Curve25519
+	privateKey[0] &= 248
+	privateKey[31] &= 127
+	privateKey[31] |= 64
+	var result [32]byte
+	copy(result[:], privateKey)
+	return &result
+}
+
+// Curve25519DH computes the shared secret using Curve25519 (X25519).
+func Curve25519DH(private *[32]byte, peerPublic *[32]byte) *[32]byte {
+	shared, err := curve25519.X25519(private[:], peerPublic[:])
+	if err != nil {
+		panic(err)
+	}
+	var result [32]byte
+	copy(result[:], shared)
+	return &result
+}
+
 // RandomBytes generates cryptographically secure random bytes.
 func RandomBytes(length int) ([]byte, error) {
 	b := make([]byte, length)
