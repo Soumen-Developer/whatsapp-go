@@ -1,10 +1,9 @@
 // Package whatsapp provides a WhatsApp Web Multidevice API client.
-// Copyright (c) 2024 Soumen Developer. All rights reserved.
+// Copyright (c) 2024 Soumen-Developer. All rights reserved.
 // Licensed under MPL-2.0 (see LICENSE).
 package whatsapp
 
 import (
-	"context"
 	"time"
 )
 
