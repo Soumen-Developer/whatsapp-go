@@ -4,6 +4,7 @@
 package whatsapp
 
 import (
+	"errors"
 	"time"
 )
 
@@ -45,6 +46,61 @@ const (
 	BotServer            = "bot"
 	ServerJID            = "s.whatsapp.net"
 )
+
+// ParseJID parses a JID string into a JID struct.
+// Format: user@server or user:device@server
+func ParseJID(s string) (*JID, error) {
+	if s == "" {
+		return nil, errors.New("empty JID")
+	}
+	
+	// Find @ separator
+	atIdx := -1
+	for i := len(s) - 1; i >= 0; i-- {
+		if s[i] == '@' {
+			atIdx = i
+			break
+		}
+	}
+	if atIdx == -1 {
+		return nil, errors.New("invalid JID format: missing @")
+	}
+	
+	userPart := s[:atIdx]
+	server := s[atIdx+1:]
+	
+	// Check for device in user part (user:device)
+	device := uint(0)
+	colonIdx := -1
+	for i := len(userPart) - 1; i >= 0; i-- {
+		if userPart[i] == ':' {
+			colonIdx = i
+			break
+		}
+	}
+	
+	user := userPart
+	if colonIdx != -1 {
+		user = userPart[:colonIdx]
+		deviceStr := userPart[colonIdx+1:]
+		// Parse device number
+		var d uint64
+		for _, c := range deviceStr {
+			if c < '0' || c > '9' {
+				return nil, errors.New("invalid device number")
+			}
+			d = d*10 + uint64(c-'0')
+		}
+		device = uint(d)
+	}
+	
+	return &JID{
+		User:   user,
+		Server: server,
+		Device: device,
+		Agent:  0,
+	}, nil
+}
 
 type MessageID string
 type MessageServerID int64
