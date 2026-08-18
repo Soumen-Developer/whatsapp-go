@@ -244,3 +244,8 @@ func (r *Reader) Next() (*Node, error) {
 func (r *Reader) Err() error {
 	return nil
 }
+
+// Decode is a convenience function to decode a single node from binary data.
+func Decode(data []byte) (*Node, error) {
+	return NewDecoder(data).Decode()
+}
