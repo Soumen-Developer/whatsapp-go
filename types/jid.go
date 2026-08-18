@@ -24,7 +24,9 @@ func (j JID) String() string {
 		j.Server = DefaultUserServer
 	}
 	if j.Device > 0 {
-		return j.User + ":" + string(rune('0'+j.Device)) + "@" + j.Server
+		// Device is guaranteed to be single digit (0-9) by ParseJID
+		deviceChar := byte('0' + j.Device)
+		return j.User + ":" + string(deviceChar) + "@" + j.Server
 	}
 	return j.User + "@" + j.Server
 }

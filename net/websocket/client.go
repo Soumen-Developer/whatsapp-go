@@ -544,13 +544,14 @@ func (c *Client) attemptReconnect(lastErr error) {
 // encodeFrame encodes a frame to binary format.
 // WhatsApp frame format: [type:1][length:4][payload...]
 func encodeFrame(frameType byte, payload []byte) []byte {
+	length := uint32(len(payload))
 	frame := make([]byte, 5+len(payload))
 	frame[0] = frameType
 	// Length as big-endian uint32
-	frame[1] = byte(len(payload) >> 24)
-	frame[2] = byte(len(payload) >> 16)
-	frame[3] = byte(len(payload) >> 8)
-	frame[4] = byte(len(payload))
+	frame[1] = byte(length >> 24)
+	frame[2] = byte(length >> 16)
+	frame[3] = byte(length >> 8)
+	frame[4] = byte(length)
 	copy(frame[5:], payload)
 	return frame
 }
@@ -560,16 +561,16 @@ func decodeFrame(data []byte) (*Frame, error) {
 	if len(data) < 5 {
 		return nil, errors.New("frame too short")
 	}
-	
+
 	frameType := data[0]
 	length := uint32(data[1])<<24 | uint32(data[2])<<16 | uint32(data[3])<<8 | uint32(data[4])
-	
+
 	if uint32(len(data)) < 5+length {
 		return nil, errors.New("frame payload truncated")
 	}
-	
+
 	payload := data[5 : 5+length]
-	
+
 	return &Frame{
 		Type:      frameType,
 		Payload:   payload,

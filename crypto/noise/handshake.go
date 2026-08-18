@@ -340,7 +340,7 @@ func (cs *CipherState) Encrypt(plaintext, additionalData []byte) ([]byte, error)
 	var nonce [12]byte
 	// Noise uses 12-byte nonce: first 4 bytes zero, last 8 bytes = big-endian nonce counter
 	for i := 0; i < 8; i++ {
-		nonce[4+i] = byte(cs.nonce >> (56 - i*8))
+		nonce[4+i] = byte(cs.nonce >> (56 - uint(i)*8))
 	}
 	
 	ciphertext := aead.Seal(nil, nonce[:], plaintext, additionalData)
@@ -361,7 +361,7 @@ func (cs *CipherState) Decrypt(ciphertext, additionalData []byte) ([]byte, error
 	
 	var nonce [12]byte
 	for i := 0; i < 8; i++ {
-		nonce[4+i] = byte(cs.nonce >> (56 - i*8))
+		nonce[4+i] = byte(cs.nonce >> (56 - uint(i)*8))
 	}
 	
 	plaintext, err := aead.Open(nil, nonce[:], ciphertext, additionalData)

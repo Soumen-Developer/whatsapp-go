@@ -153,7 +153,7 @@ func (e *Encoder) writeListSize(size int) error {
 		e.buf.WriteByte(0x00)
 	case size <= 255:
 		e.buf.WriteByte(0xF8)
-		e.buf.WriteByte(byte(size))
+		e.buf.WriteByte(byte(uint32(size)))
 	case size <= 65535:
 		e.buf.WriteByte(0xF9)
 		binary.Write(e.buf, binary.BigEndian, uint16(size))

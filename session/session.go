@@ -71,7 +71,7 @@ func NewStore(dbPath string) (*Store, error) {
 	// Ensure directory exists
 	dir := filepath.Dir(dbPath)
 	if dir != "." && dir != "" {
-		if err := os.MkdirAll(dir, 0755); err != nil {
+		if err := os.MkdirAll(dir, 0750); err != nil {
 			return nil, fmt.Errorf("create db directory: %w", err)
 		}
 	}
@@ -127,7 +127,7 @@ func (s *Store) save() error {
 		return err
 	}
 
-	return os.WriteFile(s.path, data, 0644)
+	return os.WriteFile(s.path, data, 0600)
 }
 
 // Save persists a session to the store.
